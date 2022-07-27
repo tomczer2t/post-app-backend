@@ -10,8 +10,8 @@ import {
 import { UsersService } from './users.service';
 import {
   CreateUserDto,
+  FavouriteAuthorDto,
   RefreshVerificationCodeDto,
-  UpdateUserDto,
 } from './dto';
 import {
   UsersCreateResponse,
@@ -34,13 +34,12 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Patch('/')
-  update(
+  @Patch('/favourite-author')
+  toggleFavouriteAuthor(
     @GetCurrentUser() user: UserEntity,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() { authorUsername }: FavouriteAuthorDto,
   ) {
-    console.log({ updateUserDto });
-    return 'updated';
+    return this.usersService.toggleFavouriteAuthor(authorUsername, user);
   }
 
   @UsePublic()

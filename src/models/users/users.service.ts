@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto';
 import {
-  UsersVerifyResponse,
   UsersCreateResponse,
   UsersGetUserWithPostsResponse,
+  UsersVerifyResponse,
 } from '../../types';
 import { UserEntity } from './entities';
 import { hashData } from '../../common/utils';
@@ -60,6 +60,23 @@ export class UsersService {
     user.status = 'active';
     await user.save();
     return { success: true };
+  }
+
+  async toggleFavouriteAuthor(authorName: string, user: UserEntity) {
+    console.log({ authorName });
+    const isAuthorAdded = user.favouriteAuthors.some(
+      (favAuthor) => favAuthor.username === authorName,
+    );
+    if (isAuthorAdded) {
+      user.favouriteAuthors = user.favouriteAuthors.filter(
+        (favAuthor) => favAuthor.username !== authorName,
+      );
+    } else {
+      const newFavAuthor = await UserEntity.findOneBy({ username: authorName });
+      user.favouriteAuthors = [...user.favouriteAuthors, newFavAuthor];
+    }
+    await user.save();
+    return user.favouriteAuthors.map((favAuthor) => favAuthor.username);
   }
 
   async refreshVerififactionCode(

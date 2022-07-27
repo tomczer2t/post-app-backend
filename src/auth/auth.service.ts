@@ -21,8 +21,16 @@ export class AuthService {
   ) {}
 
   filter({ id, email, username, avatarURL, favouriteAuthors }: UserEntity) {
-    console.log({ favouriteAuthors });
-    return { id, email, username, avatarURL, favouriteAuthors };
+    const favouriteAuthorsUsernames = favouriteAuthors.map(
+      (favAuthor) => favAuthor.username,
+    );
+    return {
+      id,
+      email,
+      username,
+      avatarURL,
+      favouriteAuthors: favouriteAuthorsUsernames,
+    };
   }
 
   async login(
