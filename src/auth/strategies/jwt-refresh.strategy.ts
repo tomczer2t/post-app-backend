@@ -33,7 +33,10 @@ export class JwtRefreshStrategy extends PassportStrategy(
       return done(new UnauthorizedException(), false);
     }
     const refreshToken = req?.cookies?.['jwt-refresh'];
-    const user = await UserEntity.findOneBy({ id: payload.id });
+    const user = await UserEntity.findOne({
+      where: { id: payload.id },
+      relations: ['favouriteAuthors'],
+    });
     if (!user || user.refreshToken !== refreshToken) {
       return done(new UnauthorizedException(), false);
     }

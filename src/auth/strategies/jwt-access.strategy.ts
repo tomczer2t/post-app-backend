@@ -30,7 +30,10 @@ export class JwtAccessStrategy extends PassportStrategy(
     if (!payload || !payload.id) {
       throw new UnauthorizedException();
     }
-    const user = await UserEntity.findOneBy({ id: payload.id });
+    const user = await UserEntity.findOne({
+      where: { id: payload.id },
+      relations: ['favouriteAuthors'],
+    });
     if (!user) {
       return done(new UnauthorizedException(), false);
     }

@@ -8,14 +8,19 @@ import {
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, RefreshVerificationCodeDto } from './dto';
+import {
+  CreateUserDto,
+  RefreshVerificationCodeDto,
+  UpdateUserDto,
+} from './dto';
 import {
   UsersCreateResponse,
   UsersGetUserWithPostsResponse,
   UsersVerifyResponse,
 } from '../../types';
 import { ValidateNewUserPipe } from '../../common/pipes';
-import { UsePublic } from '../../common/decorators';
+import { GetCurrentUser, UsePublic } from '../../common/decorators';
+import { UserEntity } from './entities';
 
 @Controller('/users')
 export class UsersController {
@@ -27,6 +32,15 @@ export class UsersController {
     @Body(ValidateNewUserPipe) createUserDto: CreateUserDto,
   ): Promise<UsersCreateResponse> {
     return this.usersService.create(createUserDto);
+  }
+
+  @Patch('/')
+  update(
+    @GetCurrentUser() user: UserEntity,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    console.log({ updateUserDto });
+    return 'updated';
   }
 
   @UsePublic()

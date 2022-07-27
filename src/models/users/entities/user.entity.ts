@@ -1,6 +1,14 @@
-import { BaseEntity, Column, Entity, OneToMany } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 import { AbtractEntity } from '../../../common/entities';
 import { PostEntity } from '../../posts/entities';
+import { User } from '../../../types';
 
 @Entity()
 export class UserEntity extends AbtractEntity {
@@ -31,4 +39,8 @@ export class UserEntity extends AbtractEntity {
 
   @OneToMany((type) => PostEntity, (entity) => entity.user)
   posts: PostEntity[];
+
+  @ManyToMany((type) => UserEntity)
+  @JoinTable()
+  favouriteAuthors: UserEntity[];
 }

@@ -1,18 +1,9 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto';
 import { GetCurrentUser, UsePublic } from '../../common/decorators';
 import { UserEntity } from '../users/entities';
 import { PostsGetSpecificResponse, PostsListAllResponse } from '../../types';
-import { urlencoded } from 'express';
 
 @Controller('posts')
 export class PostsController {

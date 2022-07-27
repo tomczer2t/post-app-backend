@@ -20,15 +20,20 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  filter({ id, email, username, avatarURL }: UserEntity) {
-    return { id, email, username, avatarURL };
+  filter({ id, email, username, avatarURL, favouriteAuthors }: UserEntity) {
+    console.log({ favouriteAuthors });
+    return { id, email, username, avatarURL, favouriteAuthors };
   }
 
   async login(
     { email, password }: LoginDto,
     res: Response,
   ): Promise<AuthLoginResponse> {
-    const user = await UserEntity.findOneBy({ email });
+    const user = await UserEntity.findOne({
+      where: { email },
+      relations: ['favouriteAuthors'],
+    });
+    console.log({ user });
     if (!user) {
       throw new BadRequestException('Wrong email or password');
     }
@@ -94,7 +99,7 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get('jwt.accessTokenSecret'),
-        expiresIn: '15s',
+        expiresIn: '15min',
       }),
       this.jwtService.signAsync(payload, {
         secret: this.configService.get('jwt.refreshTokenSecret'),
