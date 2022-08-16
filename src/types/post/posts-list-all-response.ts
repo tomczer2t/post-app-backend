@@ -1,3 +1,6 @@
 import { TinyPost } from './tiny-post';
 
-export type PostsListAllResponse = TinyPost[];
+export interface PostsListAllResponse {
+  totalPages: number;
+  posts: TinyPost[];
+}

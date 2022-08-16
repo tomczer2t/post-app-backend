@@ -17,7 +17,7 @@ import { MysqlConfigService } from '../../config/mysql/config.service';
         entities: ['dist/**/**.entity{.ts,.js}'],
         bigNumberStrings: false,
         synchronize: true,
-        logging: true,
+        logging: false,
       }),
       inject: [MysqlConfigService],
     } as TypeOrmModuleAsyncOptions),

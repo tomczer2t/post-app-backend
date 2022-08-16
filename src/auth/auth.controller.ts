@@ -21,7 +21,6 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UsePublic()
-  @UseGuards(StatusGuard)
   @Post('/login')
   login(
     @Res({ passthrough: true }) res: Response,

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, Post } from '@nestjs/common';
-import { CreatePostDto } from './dto';
+import { CreatePostDto, QueryDto } from './dto';
 import { PostEntity } from './entities';
 import { UserEntity } from '../users/entities';
 import {
@@ -8,9 +8,11 @@ import {
   PostsGetSpecificResponse,
 } from '../../types';
 import { SpecificPost } from '../../types/post/specific-post';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class PostsService {
+  constructor(private dataSource: DataSource) {}
   async create(createPostDto: CreatePostDto, user: UserEntity) {
     const post = new PostEntity();
     post.user = user;
@@ -22,37 +24,50 @@ export class PostsService {
     return post;
   }
 
-  async listAll({
-    page,
-    limit,
-  }: {
-    page?: number;
-    limit?: number;
-    username?: string;
-  }): Promise<PostsListAllResponse> {
-    const maxOnPage = 10;
-    const currentPage = page || 1;
-    const posts = await PostEntity.find({
-      relations: ['user'],
-      order: { createdAt: 'DESC' },
-      skip: maxOnPage * (currentPage - 1),
-      take: limit || maxOnPage,
-    });
-    return this.filterTinyPosts(posts);
+  async listAll(queryDto: QueryDto): Promise<PostsListAllResponse> {
+    const maxOnPage = 3;
+    const currentPage = queryDto.page || 1;
+
+    const query = this.dataSource
+      .createQueryBuilder()
+      .select('post')
+      .from(PostEntity, 'post')
+      .skip(maxOnPage * (currentPage - 1))
+      .take(queryDto.limit || maxOnPage)
+      .leftJoinAndSelect('post.user', 'user');
+
+    if (queryDto.search) {
+      query.where('post.title LIKE :search', {
+        search: `%${queryDto.search}%`,
+      });
+    }
+
+    if (queryDto.sortBy === 'author') {
+      query.orderBy(`user.username`, queryDto.order === 'asc' ? 'ASC' : 'DESC');
+    } else if (queryDto.sortBy) {
+      query.orderBy(
+        `post.${queryDto.sortBy}`,
+        queryDto.order === 'asc' ? 'ASC' : 'DESC',
+      );
+    } else {
+      query.orderBy(`post.createdAt`, 'DESC');
+    }
+
+    const [posts, totalCount] = await query.getManyAndCount();
+    const totalPages = Math.ceil(totalCount / maxOnPage);
+    return { totalPages, posts: this.filterTinyPosts(posts) };
   }
 
   filterTinyPosts(posts: PostEntity[]): TinyPost[] {
-    return posts.map((post) => {
-      return {
-        id: post.id,
-        title: post.title,
-        headline: post.headline,
-        photoURL: post.photoURL,
-        username: post.user.username,
-        createdAt: post.createdAt,
-        avatarURL: post.user.avatarURL,
-      };
-    });
+    return posts.map((post) => ({
+      id: post.id,
+      title: post.title,
+      headline: post.headline,
+      photoURL: post.photoURL,
+      username: post.user.username,
+      createdAt: post.createdAt,
+      avatarURL: post.user.avatarURL,
+    }));
   }
 
   filterSpecificPost(post: PostEntity): SpecificPost {
@@ -81,5 +96,19 @@ export class PostsService {
     }
 
     return this.filterSpecificPost(post);
+  }
+
+  async listPostsByFavouriteAuthors(user: UserEntity) {
+    const queryPosts = this.dataSource
+      .createQueryBuilder()
+      .select('post')
+      .from(PostEntity, 'post')
+      .where('post.userId in (:favouriteAuthors)', {
+        favouriteAuthors: user.favouriteAuthors.map((author) => author.id),
+      })
+      .leftJoinAndSelect('post.user', 'user');
+
+    const posts = await queryPosts.getMany();
+    return this.filterTinyPosts(posts);
   }
 }
