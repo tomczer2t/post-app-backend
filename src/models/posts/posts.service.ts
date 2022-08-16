@@ -102,13 +102,19 @@ export class PostsService {
     const queryPosts = this.dataSource
       .createQueryBuilder()
       .select('post')
-      .from(PostEntity, 'post')
-      .where('post.userId in (:favouriteAuthors)', {
-        favouriteAuthors: user.favouriteAuthors.map((author) => author.id),
-      })
-      .leftJoinAndSelect('post.user', 'user');
+      .from(PostEntity, 'post');
 
-    const posts = await queryPosts.getMany();
+    if (user.favouriteAuthors.length > 0) {
+      queryPosts.where('post.userId in (:favouriteAuthors)', {
+        favouriteAuthors: user.favouriteAuthors.map((author) => author.id),
+      });
+    } else {
+      return [];
+    }
+
+    const posts = await queryPosts
+      .leftJoinAndSelect('post.user', 'user')
+      .getMany();
     return this.filterTinyPosts(posts);
   }
 }
