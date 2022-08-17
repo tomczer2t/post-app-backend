@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto';
 import {
+  Author,
   UsersCreateResponse,
   UsersGetUserWithPostsResponse,
   UsersVerifyResponse,
@@ -17,10 +18,15 @@ import {
   emailVerificationTemplate,
   refreshVerificationTemplate,
 } from '../../providers/email/templates';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  constructor(private emailProviderService: EmailProviderService) {}
+  constructor(
+    private emailProviderService: EmailProviderService,
+    private dataSource: DataSource,
+  ) {}
+
   async create({
     username,
     email,
@@ -133,5 +139,40 @@ export class UsersService {
       username: user.username,
       avatarURL: user.avatarURL,
     }));
+  }
+
+  async getFavouritesAuthors(user: UserEntity) {
+    if (user.favouriteAuthors.length === 0) {
+      return [];
+    }
+
+    const query = this.dataSource
+      .createQueryBuilder()
+      .select('user')
+      .from(UserEntity, 'user')
+      .where('user.id in (:favouriteAuthors)', {
+        favouriteAuthors: user.favouriteAuthors.map((author) => author.id),
+      })
+      .leftJoinAndSelect('user.posts', 'posts')
+      .addOrderBy('posts.createdAt', 'DESC');
+
+    const authors = await query.getMany();
+
+    const filteredAuthors = authors.map((a) => {
+      const post = a.posts[0];
+      const author: Author = {
+        username: a.username,
+        avatarURL: a.avatarURL,
+        postsCount: a.posts.length,
+      };
+      if (post) {
+        author.lastPost = {
+          title: post?.title,
+          photoURL: post?.photoURL,
+        };
+      }
+      return author;
+    });
+    return filteredAuthors;
   }
 }

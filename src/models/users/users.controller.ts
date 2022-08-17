@@ -65,4 +65,9 @@ export class UsersController {
   ): Promise<UsersGetUserWithPostsResponse> {
     return this.usersService.getUserWithPosts(username);
   }
+
+  @Get('/favourite-authors')
+  getFavouritesAuthors(@GetCurrentUser() user: UserEntity) {
+    return this.usersService.getFavouritesAuthors(user);
+  }
 }

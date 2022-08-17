@@ -5,10 +5,10 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { AbtractEntity } from '../../../common/entities';
 import { PostEntity } from '../../posts/entities';
-import { User } from '../../../types';
 
 @Entity()
 export class UserEntity extends AbtractEntity {
