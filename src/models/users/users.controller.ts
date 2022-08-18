@@ -70,4 +70,9 @@ export class UsersController {
   getFavouritesAuthors(@GetCurrentUser() user: UserEntity) {
     return this.usersService.getFavouritesAuthors(user);
   }
+
+  @Get('/posts')
+  getUserPosts(@GetCurrentUser() user: UserEntity) {
+    return this.usersService.getUserPosts(user);
+  }
 }

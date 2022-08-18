@@ -6,6 +6,8 @@ import {
 import { CreateUserDto } from './dto';
 import {
   Author,
+  GetUserPostsResponse,
+  UserPost,
   UsersCreateResponse,
   UsersGetUserWithPostsResponse,
   UsersVerifyResponse,
@@ -19,6 +21,7 @@ import {
   refreshVerificationTemplate,
 } from '../../providers/email/templates';
 import { DataSource } from 'typeorm';
+import { PostEntity } from '../posts/entities';
 
 @Injectable()
 export class UsersService {
@@ -169,10 +172,32 @@ export class UsersService {
         author.lastPost = {
           title: post?.title,
           photoURL: post?.photoURL,
+          postId: post?.id,
         };
       }
       return author;
     });
     return filteredAuthors;
+  }
+
+  async getUserPosts(user: UserEntity): Promise<GetUserPostsResponse> {
+    const [entirePosts, count] = await this.dataSource
+      .createQueryBuilder()
+      .select('post')
+      .from(PostEntity, 'post')
+      .leftJoin('post.user', 'user')
+      .where('user.id = :userId', { userId: user.id })
+      .orderBy('post.createdAt', 'DESC')
+      .getManyAndCount();
+
+    const posts: UserPost[] = entirePosts.map((post) => ({
+      id: post.id,
+      title: post.title,
+      headline: post.headline,
+      photoURL: post.photoURL,
+      createdAt: post.createdAt,
+    }));
+
+    return { posts, count };
   }
 }

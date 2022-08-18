@@ -5,5 +5,6 @@ export interface Author {
   lastPost?: {
     title: string;
     photoURL: string | undefined;
+    postId: string;
   };
 }

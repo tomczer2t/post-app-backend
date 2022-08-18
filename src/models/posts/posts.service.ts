@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, Post } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  Post,
+} from '@nestjs/common';
 import { CreatePostDto, QueryDto } from './dto';
 import { PostEntity } from './entities';
 import { UserEntity } from '../users/entities';
@@ -21,7 +26,7 @@ export class PostsService {
     post.content = createPostDto.content;
     post.photoURL = createPostDto.photoURL;
     await post.save();
-    return post;
+    return { postId: post.id };
   }
 
   async listAll(queryDto: QueryDto): Promise<PostsListAllResponse> {
@@ -116,5 +121,11 @@ export class PostsService {
       .leftJoinAndSelect('post.user', 'user')
       .getMany();
     return this.filterTinyPosts(posts);
+  }
+
+  async deletePost(postId: string) {
+    const post = await PostEntity.findOneBy({ id: postId });
+    console.log({ post });
+    await post.remove();
   }
 }

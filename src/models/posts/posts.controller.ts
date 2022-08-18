@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto, QueryDto } from './dto';
 import { GetCurrentUser, UsePublic } from '../../common/decorators';
@@ -38,5 +46,10 @@ export class PostsController {
     @Param('postId') postId: string,
   ): Promise<PostsGetSpecificResponse> {
     return this.postsService.getSpecific(postId);
+  }
+
+  @Delete('/:postId')
+  deletePost(@Param('postId') postId: string) {
+    return this.postsService.deletePost(postId);
   }
 }
