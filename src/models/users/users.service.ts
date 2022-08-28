@@ -149,7 +149,7 @@ export class UsersService {
       .from(PostEntity, 'post')
       .leftJoinAndSelect('post.user', 'user')
       .where('user.username = :username', { username })
-      .where('post.status = :status', { status: PostStatus.ACCEPTED })
+      .andWhere('post.status = :status', { status: PostStatus.ACCEPTED })
       .getMany();
 
     return posts.map((post) => ({
@@ -212,7 +212,6 @@ export class UsersService {
       photoURL: post.photoURL,
       createdAt: post.createdAt,
     }));
-
     return { posts, count };
   }
 

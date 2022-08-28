@@ -130,4 +130,16 @@ export class PostsService {
     console.log({ post });
     await post.remove();
   }
+
+  async listPending() {
+    const pendingPosts = await this.dataSource
+      .createQueryBuilder()
+      .select('post')
+      .from(PostEntity, 'post')
+      .where('post.status = :status', { status: PostStatus.PENDING })
+      .leftJoinAndSelect('post.user', 'user')
+      .getMany();
+    console.log(pendingPosts);
+    return this.filterTinyPosts(pendingPosts);
+  }
 }

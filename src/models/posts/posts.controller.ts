@@ -6,12 +6,22 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto, QueryDto } from './dto';
-import { GetCurrentUser, UsePublic } from '../../common/decorators';
+import {
+  GetCurrentUser,
+  SetAccessRole,
+  UsePublic,
+} from '../../common/decorators';
 import { UserEntity } from '../users/entities';
-import { PostsGetSpecificResponse, PostsListAllResponse } from '../../types';
+import {
+  PostsGetSpecificResponse,
+  PostsListAllResponse,
+  UserRole,
+} from '../../types';
+import { RoleGuard } from '../../common/guards';
 
 @Controller('posts')
 export class PostsController {
@@ -33,6 +43,13 @@ export class PostsController {
     @Query() queryDto: QueryDto,
   ): Promise<PostsListAllResponse> {
     return this.postsService.listAll(queryDto);
+  }
+
+  @SetAccessRole(UserRole.ADMIN)
+  @UseGuards(RoleGuard)
+  @Get('/pending')
+  listPending() {
+    return this.postsService.listPending();
   }
 
   @Get('/favourite-authors')
