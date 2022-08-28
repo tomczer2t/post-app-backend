@@ -1,16 +1,13 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  Post,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto, QueryDto } from './dto';
 import { PostEntity } from './entities';
 import { UserEntity } from '../users/entities';
 import {
-  TinyPost,
-  PostsListAllResponse,
   PostsGetSpecificResponse,
+  PostsListAllResponse,
+  PostStatus,
+  TinyPost,
+  UserRole,
 } from '../../types';
 import { SpecificPost } from '../../types/post/specific-post';
 import { DataSource } from 'typeorm';
@@ -25,6 +22,9 @@ export class PostsService {
     post.headline = createPostDto.headline;
     post.content = createPostDto.content;
     post.photoURL = createPostDto.photoURL;
+    if (user.role === UserRole.ADMIN) {
+      post.status = PostStatus.ACCEPTED;
+    }
     await post.save();
     return { postId: post.id };
   }
@@ -37,6 +37,7 @@ export class PostsService {
       .createQueryBuilder()
       .select('post')
       .from(PostEntity, 'post')
+      .where('post.status = 1')
       .skip(maxOnPage * (currentPage - 1))
       .take(queryDto.limit || maxOnPage)
       .leftJoinAndSelect('post.user', 'user');
@@ -108,6 +109,7 @@ export class PostsService {
       .createQueryBuilder()
       .select('post')
       .from(PostEntity, 'post');
+    // .where('post.status = 1');
 
     if (user.favouriteAuthors.length > 0) {
       queryPosts.where('post.userId in (:favouriteAuthors)', {

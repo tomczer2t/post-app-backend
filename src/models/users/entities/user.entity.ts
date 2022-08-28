@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { AbtractEntity } from '../../../common/entities';
 import { PostEntity } from '../../posts/entities';
-import { UserStatus } from '../../../types';
+import { UserRole, UserStatus } from '../../../types';
 
 @Entity()
 export class UserEntity extends AbtractEntity {
@@ -34,6 +34,9 @@ export class UserEntity extends AbtractEntity {
 
   @Column({ default: UserStatus.PENDING, width: 1 })
   status: UserStatus;
+
+  @Column({ default: UserRole.USER })
+  role: UserRole;
 
   @Column({ unique: true, nullable: true })
   verificationCode: string;

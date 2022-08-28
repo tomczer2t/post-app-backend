@@ -8,6 +8,7 @@ import { CreateUserDto } from './dto';
 import {
   Author,
   GetUserPostsResponse,
+  PostStatus,
   UpdateProfileResponse,
   UserPost,
   UsersCreateResponse,
@@ -141,7 +142,17 @@ export class UsersService {
       where: { username },
       relations: ['posts'],
     });
-    return user.posts.map((post) => ({
+
+    const posts = await this.dataSource
+      .createQueryBuilder()
+      .select('post')
+      .from(PostEntity, 'post')
+      .leftJoinAndSelect('post.user', 'user')
+      .where('user.username = :username', { username })
+      .where('post.status = :status', { status: PostStatus.ACCEPTED })
+      .getMany();
+
+    return posts.map((post) => ({
       ...post,
       username: user.username,
       avatarURL: user.avatarURL,
