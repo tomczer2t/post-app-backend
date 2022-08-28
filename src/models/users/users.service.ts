@@ -2,11 +2,13 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto';
 import {
   Author,
   GetUserPostsResponse,
+  UpdateProfileResponse,
   UserPost,
   UsersCreateResponse,
   UsersGetUserWithPostsResponse,
@@ -22,6 +24,8 @@ import {
 } from '../../providers/email/templates';
 import { DataSource } from 'typeorm';
 import { PostEntity } from '../posts/entities';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -41,7 +45,6 @@ export class UsersService {
     user.password = await hashData(password);
     user.verificationCode = uuid();
     await user.save();
-    console.log({ confirmationCode: user.verificationCode });
     const sendEmailSuccess = await this.emailProviderService.sendMail(
       email,
       'Successful registration',
@@ -199,5 +202,36 @@ export class UsersService {
     }));
 
     return { posts, count };
+  }
+
+  async updateProfile(
+    user: UserEntity,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UpdateProfileResponse> {
+    if (updateUserDto.email) {
+      if (!updateUserDto.password) {
+        throw new BadRequestException('Password is required');
+      }
+      const pwdMatch = await compare(updateUserDto.password, user.password);
+      if (!pwdMatch) throw new UnauthorizedException('Wrong password');
+      user.email = updateUserDto.email;
+    }
+
+    if (updateUserDto.username) {
+      user.username = updateUserDto.username;
+    }
+
+    if (updateUserDto.newPassword) {
+      if (!updateUserDto.password) {
+        throw new BadRequestException('Password is required');
+      }
+      const pwdMatch = await compare(updateUserDto.password, user.password);
+      if (!pwdMatch) throw new UnauthorizedException('Wrong password');
+      user.password = await hashData(updateUserDto.newPassword);
+    }
+
+    await user.save();
+
+    return { username: user.username, email: user.email };
   }
 }

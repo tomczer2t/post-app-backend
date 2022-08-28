@@ -14,13 +14,18 @@ import {
   RefreshVerificationCodeDto,
 } from './dto';
 import {
+  UpdateProfileResponse,
   UsersCreateResponse,
   UsersGetUserWithPostsResponse,
   UsersVerifyResponse,
 } from '../../types';
-import { ValidateNewUserPipe } from '../../common/pipes';
+import {
+  ValidateNewUserPipe,
+  ValidateUpdateUserPipe,
+} from '../../common/pipes';
 import { GetCurrentUser, UsePublic } from '../../common/decorators';
 import { UserEntity } from './entities';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('/users')
 export class UsersController {
@@ -74,5 +79,13 @@ export class UsersController {
   @Get('/posts')
   getUserPosts(@GetCurrentUser() user: UserEntity) {
     return this.usersService.getUserPosts(user);
+  }
+
+  @Patch('/')
+  updateProfile(
+    @Body(ValidateUpdateUserPipe) updateUserDto: UpdateUserDto,
+    @GetCurrentUser() user: UserEntity,
+  ): Promise<UpdateProfileResponse> {
+    return this.usersService.updateProfile(user, updateUserDto);
   }
 }
