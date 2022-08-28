@@ -34,7 +34,7 @@ export class JwtAccessStrategy extends PassportStrategy(
       where: { id: payload.id },
       relations: ['favouriteAuthors'],
     });
-    if (!user) {
+    if (!user || user.status === 'pending') {
       return done(new UnauthorizedException(), false);
     }
     done(null, user);
