@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { EmailConfigModule } from '../../config/email/config.module';
-import { HandlebarsAdapter, MailerModule } from '@nest-modules/mailer';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { EmailConfigService } from '../../config/email/config.service';
-import { MailerAsyncOptions } from '@nest-modules/mailer/dist/interfaces/mailer-async-options.interface';
+import { MailerAsyncOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-async-options.interface';
 import { EmailProviderService } from './provider.service';
 
 @Module({
@@ -14,6 +15,7 @@ import { EmailProviderService } from './provider.service';
         defaults: {
           from: emailConfigService.from,
         },
+        preview: true,
         template: {
           dir: './templates/',
           adapter: new HandlebarsAdapter(),
