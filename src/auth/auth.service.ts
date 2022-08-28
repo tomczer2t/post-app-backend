@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LoginDto } from './dto';
 import { UserEntity } from '../models/users/entities';
 import { ConfigService } from '@nestjs/config';
@@ -48,6 +52,9 @@ export class AuthService {
     const pwdMatch = await compare(password, user.password);
     if (!pwdMatch) {
       throw new BadRequestException('Wrong email or password');
+    }
+    if (user.status === 'pending') {
+      throw new UnauthorizedException('Account is not verified yet.');
     }
     const { accessToken, refreshToken } = await this.getNewTokens({
       id: user.id,
