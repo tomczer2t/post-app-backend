@@ -6,3 +6,4 @@ export * from './author';
 export * from './get-user-posts-response';
 export * from './update-profile-response';
 export * from './user-role';
+export * from './user-status';
