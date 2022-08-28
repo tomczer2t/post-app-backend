@@ -12,7 +12,7 @@ import {
   AuthRefreshResponse,
   JwtPayload,
   Tokens,
-  User,
+  UserStatus,
 } from '../types';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
@@ -53,7 +53,7 @@ export class AuthService {
     if (!pwdMatch) {
       throw new BadRequestException('Wrong email or password');
     }
-    if (user.status === 'pending') {
+    if (user.status === UserStatus.PENDING) {
       throw new UnauthorizedException('Account is not verified yet.');
     }
     const { accessToken, refreshToken } = await this.getNewTokens({

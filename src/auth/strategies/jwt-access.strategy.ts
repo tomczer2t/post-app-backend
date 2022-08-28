@@ -6,7 +6,7 @@ import {
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from '../../types';
+import { JwtPayload, UserStatus } from '../../types';
 import { UserEntity } from '../../models/users/entities';
 
 @Injectable()
@@ -34,7 +34,7 @@ export class JwtAccessStrategy extends PassportStrategy(
       where: { id: payload.id },
       relations: ['favouriteAuthors'],
     });
-    if (!user || user.status === 'pending') {
+    if (!user || user.status === UserStatus.PENDING) {
       return done(new UnauthorizedException(), false);
     }
     done(null, user);

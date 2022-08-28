@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { UserEntity } from '../../models/users/entities';
+import { UserStatus } from '../../types';
 
 @Injectable()
 export class StatusGuard implements CanActivate {
@@ -13,9 +14,9 @@ export class StatusGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<Request>();
     const user = await UserEntity.findOneBy({ email: req.body.email });
     if (!user) return true;
-    if (user.status === 'pending') {
+    if (user.status === UserStatus.PENDING) {
       throw new ForbiddenException('Email is not verified');
     }
-    return user.status === 'active';
+    return user.status === UserStatus.ACTIVE;
   }
 }

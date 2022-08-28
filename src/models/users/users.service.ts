@@ -12,6 +12,7 @@ import {
   UserPost,
   UsersCreateResponse,
   UsersGetUserWithPostsResponse,
+  UserStatus,
   UsersVerifyResponse,
 } from '../../types';
 import { UserEntity } from './entities';
@@ -69,7 +70,7 @@ export class UsersService {
       throw new BadRequestException('Wrong confirmation code');
     }
     user.verificationCode = null;
-    user.status = 'active';
+    user.status = UserStatus.ACTIVE;
     await user.save();
     return { success: true };
   }
@@ -101,7 +102,7 @@ export class UsersService {
         'There is no registered user with such an email.',
       );
     }
-    if (user.status === 'active') {
+    if (user.status === UserStatus.ACTIVE) {
       throw new BadRequestException(
         'User with such an email is already verified.',
       );

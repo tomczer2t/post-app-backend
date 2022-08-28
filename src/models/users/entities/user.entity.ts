@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { AbtractEntity } from '../../../common/entities';
 import { PostEntity } from '../../posts/entities';
+import { UserStatus } from '../../../types';
 
 @Entity()
 export class UserEntity extends AbtractEntity {
@@ -31,8 +32,8 @@ export class UserEntity extends AbtractEntity {
   })
   refreshToken: string;
 
-  @Column({ default: 'pending', length: 7 })
-  status: string;
+  @Column({ default: UserStatus.PENDING, width: 1 })
+  status: UserStatus;
 
   @Column({ unique: true, nullable: true })
   verificationCode: string;
