@@ -43,7 +43,7 @@ export class PostsService {
       .leftJoinAndSelect('post.user', 'user');
 
     if (queryDto.search) {
-      query.where('post.title LIKE :search', {
+      query.andWhere('post.title LIKE :search', {
         search: `%${queryDto.search}%`,
       });
     }

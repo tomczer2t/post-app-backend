@@ -24,7 +24,14 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  filter({ id, email, username, avatarURL, favouriteAuthors }: UserEntity) {
+  filter({
+    id,
+    email,
+    username,
+    avatarURL,
+    favouriteAuthors,
+    role,
+  }: UserEntity) {
     const favouriteAuthorsUsernames = favouriteAuthors.map(
       (favAuthor) => favAuthor.username,
     );
@@ -33,6 +40,7 @@ export class AuthService {
       email,
       username,
       avatarURL,
+      role,
       favouriteAuthors: favouriteAuthorsUsernames,
     };
   }
@@ -45,7 +53,6 @@ export class AuthService {
       where: { email },
       relations: ['favouriteAuthors'],
     });
-    console.log({ user });
     if (!user) {
       throw new BadRequestException('Wrong email or password');
     }
