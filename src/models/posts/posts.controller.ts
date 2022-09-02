@@ -4,12 +4,13 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { CreatePostDto, QueryDto } from './dto';
+import { CreatePostDto, PatchStatusDto, QueryDto } from './dto';
 import {
   GetCurrentUser,
   SetAccessRole,
@@ -22,6 +23,7 @@ import {
   UserRole,
 } from '../../types';
 import { RoleGuard } from '../../common/guards';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -50,6 +52,22 @@ export class PostsController {
   @Get('/pending')
   listPending() {
     return this.postsService.listPending();
+  }
+
+  @SetAccessRole(UserRole.ADMIN)
+  @UseGuards(RoleGuard)
+  @Patch('/:id/status')
+  patchStatus(@Param('id') id: string, @Body() patchStatusDto: PatchStatusDto) {
+    return this.postsService.patchStatus(id, patchStatusDto.status);
+  }
+
+  @Patch('/:id')
+  updateSpecific(
+    @Param('id') postId: string,
+    @GetCurrentUser() user: UserEntity,
+    @Body() updatePostDto: UpdatePostDto,
+  ) {
+    return this.postsService.updateSpecific(postId, user, updatePostDto);
   }
 
   @Get('/favourite-authors')

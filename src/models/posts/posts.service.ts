@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreatePostDto, QueryDto } from './dto';
+import { CreatePostDto, PatchStatusDto, QueryDto } from './dto';
 import { PostEntity } from './entities';
 import { UserEntity } from '../users/entities';
 import {
@@ -11,6 +11,7 @@ import {
 } from '../../types';
 import { SpecificPost } from '../../types/post/specific-post';
 import { DataSource } from 'typeorm';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -141,5 +142,36 @@ export class PostsService {
       .getMany();
     console.log(pendingPosts);
     return this.filterTinyPosts(pendingPosts);
+  }
+
+  async patchStatus(id: string, status: PostStatus) {
+    const post = await PostEntity.findOneBy({ id });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    post.status = status;
+    await post.save();
+    return;
+  }
+
+  async updateSpecific(
+    postId: string,
+    user: UserEntity,
+    updatePostDto: UpdatePostDto,
+  ) {
+    const post = await PostEntity.findOneBy({ id: postId });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    post.user = user;
+    post.title = updatePostDto.title;
+    post.headline = updatePostDto.headline;
+    post.content = updatePostDto.content;
+    post.photoURL = updatePostDto.photoURL;
+    if (user.role !== UserRole.ADMIN) {
+      post.status = PostStatus.PENDING;
+    }
+    await post.save();
+    return { postId: post.id };
   }
 }
