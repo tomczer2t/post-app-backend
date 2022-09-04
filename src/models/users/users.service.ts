@@ -95,7 +95,7 @@ export class UsersService {
     return user.favouriteAuthors.map((favAuthor) => favAuthor.username);
   }
 
-  async refreshVerififactionCode(
+  async refreshVerificationCode(
     email: string,
   ): Promise<UsersRefreshVerificationCodeResponse> {
     //@todo move validation to separate pipe

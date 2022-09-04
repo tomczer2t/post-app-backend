@@ -63,10 +63,10 @@ export class UsersController {
 
   @UsePublic()
   @Patch('/refresh-verification-code')
-  refreshVerififactionCode(
+  refreshVerificationCode(
     @Body() { email }: RefreshVerificationCodeDto,
   ): Promise<UsersRefreshVerificationCodeResponse> {
-    return this.usersService.refreshVerififactionCode(email);
+    return this.usersService.refreshVerificationCode(email);
   }
 
   @UsePublic()
