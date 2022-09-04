@@ -173,19 +173,25 @@ export class UsersService {
       .where('user.id in (:favouriteAuthors)', {
         favouriteAuthors: user.favouriteAuthors.map((author) => author.id),
       })
-      .leftJoinAndSelect('user.posts', 'posts')
-      .addOrderBy('posts.createdAt', 'DESC');
+      .leftJoinAndSelect('user.posts', 'post')
+      .addOrderBy('post.createdAt', 'DESC');
 
     const authors = await query.getMany();
 
+    console.log({ authors });
+
     const filteredAuthors = authors.map((a) => {
-      const post = a.posts[0];
+      const acceptedPosts = a.posts.filter(
+        (post) => post.status === PostStatus.ACCEPTED,
+      );
+
       const author: Author = {
         username: a.username,
         avatarURL: a.avatarURL,
-        postsCount: a.posts.length,
+        postsCount: acceptedPosts.length,
       };
-      if (post) {
+      if (acceptedPosts[0]) {
+        const post = acceptedPosts[0];
         author.lastPost = {
           title: post?.title,
           photoURL: post?.photoURL,
