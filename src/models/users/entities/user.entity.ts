@@ -16,6 +16,9 @@ export class UserEntity extends AbtractEntity {
   @Column({ unique: true })
   email: string;
 
+  @Column({ unique: true, nullable: true, default: null })
+  newEmail: string;
+
   @Column({ unique: true, length: 25 })
   username: string;
 

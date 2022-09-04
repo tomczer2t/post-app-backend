@@ -56,6 +56,12 @@ export class UsersController {
   }
 
   @UsePublic()
+  @Get('/verify/email/:verificationCode')
+  verifyEmailChange(@Param('verificationCode') verificationCode: string) {
+    return this.usersService.verifyEmailChange(verificationCode);
+  }
+
+  @UsePublic()
   @Patch('/refresh-verification-code')
   refreshVerififactionCode(
     @Body() { email }: RefreshVerificationCodeDto,

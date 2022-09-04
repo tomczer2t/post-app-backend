@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -21,6 +22,7 @@ import { hashData } from '../../common/utils';
 import { v4 as uuid } from 'uuid';
 import { EmailProviderService } from '../../providers/email/provider.service';
 import {
+  changeEmailTemplate,
   emailVerificationTemplate,
   refreshVerificationTemplate,
 } from '../../providers/email/templates';
@@ -225,7 +227,24 @@ export class UsersService {
       }
       const pwdMatch = await compare(updateUserDto.password, user.password);
       if (!pwdMatch) throw new UnauthorizedException('Wrong password');
-      user.email = updateUserDto.email;
+      user.newEmail = updateUserDto.email;
+      user.verificationCode = uuid();
+      const subject = 'Verify email change.';
+      const body = changeEmailTemplate(
+        user.username,
+        user.verificationCode,
+        user.newEmail,
+      );
+      const isSent = await this.emailProviderService.sendMail(
+        user.email,
+        subject,
+        body,
+      );
+      if (!isSent) {
+        user.verificationCode = null;
+        user.newEmail = null;
+        throw new InternalServerErrorException('Change email not sent.');
+      }
     }
 
     if (updateUserDto.username) {
@@ -244,5 +263,20 @@ export class UsersService {
     await user.save();
 
     return { username: user.username, email: user.email };
+  }
+
+  async verifyEmailChange(verificationCode: string) {
+    const user = await UserEntity.findOneBy({ verificationCode });
+    if (!user) {
+      throw new NotFoundException('Wrong confirmation code');
+    }
+    if (!user.newEmail) {
+      throw new BadRequestException('New email is not set.');
+    }
+    user.verificationCode = null;
+    user.email = user.newEmail;
+    user.newEmail = null;
+    await user.save();
+    return { success: true };
   }
 }
