@@ -91,6 +91,11 @@ export class UsersController {
     return this.usersService.getUserPosts(user);
   }
 
+  @Get('/follow-info')
+  getFollowInfo(@GetCurrentUser() user: UserEntity) {
+    return this.usersService.getFollowInfo(user);
+  }
+
   @Patch('/')
   updateProfile(
     @Body(ValidateUpdateUserPipe) updateUserDto: UpdateUserDto,

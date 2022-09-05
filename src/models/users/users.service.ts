@@ -305,4 +305,15 @@ export class UsersService {
     await user.save();
     return;
   }
+
+  async getFollowInfo(user: UserEntity) {
+    const [, followers] = await this.dataSource
+      .createQueryBuilder()
+      .select('user')
+      .from(UserEntity, 'user')
+      .leftJoinAndSelect('user.favouriteAuthors', 'fa')
+      .where('fa.id = :userId', { userId: user.id })
+      .getManyAndCount();
+    return { followers, following: user.favouriteAuthors.length };
+  }
 }
