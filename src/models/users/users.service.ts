@@ -290,12 +290,17 @@ export class UsersService {
 
   async updateAvatar(file: Express.Multer.File, user: UserEntity) {
     const response = await this.cloudinary.uploadImage(file);
+    if (user.avatarURL) {
+      await this.cloudinary.removeImage(user.avatarURL);
+    }
     user.avatarURL = response?.secure_url || null;
     await user.save();
     return user.avatarURL;
   }
 
   async deleteAvatar(user: UserEntity) {
+    if (!user.avatarURL) return;
+    await this.cloudinary.removeImage(user.avatarURL);
     user.avatarURL = null;
     await user.save();
     return;

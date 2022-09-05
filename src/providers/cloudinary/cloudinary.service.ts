@@ -18,4 +18,10 @@ export class CloudinaryService {
       toStream(file.buffer).pipe(upload);
     });
   }
+
+  async removeImage(url: string) {
+    const splittedUrl = url.split('/');
+    const assetId = splittedUrl[splittedUrl.length - 1].split('.')[0];
+    return await v2.uploader.destroy('post_app/' + assetId);
+  }
 }
