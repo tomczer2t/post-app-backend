@@ -9,11 +9,9 @@ import { PostsModule } from './models/posts/posts.module';
 @Module({
   imports: [
     AppConfigModule,
-    // MysqlConfigModule,
     MysqlProviderModule,
     UsersModule,
     AuthModule,
-    // EmailConfigModule,
     EmailProviderModule,
     PostsModule,
   ],

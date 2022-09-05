@@ -1,11 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -26,6 +29,7 @@ import {
 import { GetCurrentUser, UsePublic } from '../../common/decorators';
 import { UserEntity } from './entities';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('/users')
 export class UsersController {
@@ -93,5 +97,19 @@ export class UsersController {
     @GetCurrentUser() user: UserEntity,
   ): Promise<UpdateProfileResponse> {
     return this.usersService.updateProfile(user, updateUserDto);
+  }
+
+  @Patch('/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  updateAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @GetCurrentUser() user: UserEntity,
+  ) {
+    return this.usersService.updateAvatar(file, user);
+  }
+
+  @Delete('/avatar')
+  deleteAvatar(@GetCurrentUser() user: UserEntity) {
+    return this.usersService.deleteAvatar(user);
   }
 }

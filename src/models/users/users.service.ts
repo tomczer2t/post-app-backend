@@ -30,12 +30,14 @@ import { DataSource } from 'typeorm';
 import { PostEntity } from '../posts/entities';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { compare } from 'bcrypt';
+import { CloudinaryService } from '../../providers/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private emailProviderService: EmailProviderService,
     private dataSource: DataSource,
+    private cloudinary: CloudinaryService,
   ) {}
 
   async create({
@@ -284,5 +286,18 @@ export class UsersService {
     user.newEmail = null;
     await user.save();
     return { success: true };
+  }
+
+  async updateAvatar(file: Express.Multer.File, user: UserEntity) {
+    const response = await this.cloudinary.uploadImage(file);
+    user.avatarURL = response?.secure_url || null;
+    await user.save();
+    return user.avatarURL;
+  }
+
+  async deleteAvatar(user: UserEntity) {
+    user.avatarURL = null;
+    await user.save();
+    return;
   }
 }
