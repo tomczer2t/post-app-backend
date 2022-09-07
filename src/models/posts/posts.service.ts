@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePostDto, PatchStatusDto, QueryDto } from './dto';
 import { PostEntity } from './entities';
 import { UserEntity } from '../users/entities';
@@ -16,18 +21,28 @@ import { UpdatePostDto } from './dto/update-post.dto';
 @Injectable()
 export class PostsService {
   constructor(private dataSource: DataSource) {}
+
   async create(createPostDto: CreatePostDto, user: UserEntity) {
-    const post = new PostEntity();
-    post.user = user;
-    post.title = createPostDto.title;
-    post.headline = createPostDto.headline;
-    post.content = createPostDto.content;
-    post.photoURL = createPostDto.photoURL;
-    if (user.role === UserRole.ADMIN) {
-      post.status = PostStatus.ACCEPTED;
+    try {
+      const post = new PostEntity();
+      post.user = user;
+      post.title = createPostDto.title;
+      post.headline = createPostDto.headline;
+      post.content = createPostDto.content;
+      post.photoURL = createPostDto.photoURL;
+      if (user.role === UserRole.ADMIN) {
+        post.status = PostStatus.ACCEPTED;
+      }
+      await post.save();
+      return { postId: post.id };
+    } catch (err) {
+      if (err.errno === 1062) {
+        throw new ConflictException(
+          'Post with the same title already exists in our database.',
+        );
+      }
+      throw new InternalServerErrorException(err);
     }
-    await post.save();
-    return { postId: post.id };
   }
 
   async listAll(queryDto: QueryDto): Promise<PostsListAllResponse> {
