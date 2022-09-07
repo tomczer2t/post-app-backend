@@ -218,6 +218,7 @@ export class UsersService {
     const posts: UserPost[] = entirePosts.map((post) => ({
       id: post.id,
       title: post.title,
+      status: post.status,
       headline: post.headline,
       photoURL: post.photoURL,
       createdAt: post.createdAt,

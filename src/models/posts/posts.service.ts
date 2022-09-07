@@ -70,6 +70,7 @@ export class PostsService {
       id: post.id,
       title: post.title,
       headline: post.headline,
+      status: post.status,
       photoURL: post.photoURL,
       username: post.user.username,
       createdAt: post.createdAt,
@@ -84,6 +85,8 @@ export class PostsService {
       headline: post.headline,
       content: post.content,
       photoURL: post.photoURL,
+      createdAt: post.createdAt,
+      status: post.status,
       user: {
         id: post.user.id,
         avatarUrl: post.user.avatarURL,
