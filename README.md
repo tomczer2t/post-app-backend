@@ -13,7 +13,7 @@ Create posts. Follow best bloggers.
 Here is a working live demo: https://habit-tracker.networkmanager.pl/
 
 ## General info
-This project is a server side application, mode for creating and reading posts.
+This project is a server side application, made for creating and reading posts.
 <br/>
 Front-end repository - https://github.com/tomczer2t/post-app-frontend
 <br/>
