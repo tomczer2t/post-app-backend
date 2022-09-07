@@ -1,7 +1,7 @@
 # PostApp: back-end
 
 
-![Demo screenshot](static/images/demo-screenshot.png)
+![Demo screenshot](https://user-images.githubusercontent.com/88483398/188853017-f06e2b29-cf29-426b-9f4e-5c8be1293585.png)
 Create posts. Follow best bloggers.
 
 ## Table of contents
