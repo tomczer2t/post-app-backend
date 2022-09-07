@@ -5,7 +5,6 @@
 Create posts. Follow best bloggers.
 
 ## Table of contents
-* [Demo](#demo)
 * [General info](#general-info)
 * [Technologies](#technologies)
 
