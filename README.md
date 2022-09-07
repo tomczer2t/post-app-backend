@@ -9,8 +9,6 @@ Create posts. Follow best bloggers.
 * [General info](#general-info)
 * [Technologies](#technologies)
 
-## Demo
-Here is a working live demo: https://habit-tracker.networkmanager.pl/
 
 ## General info
 This project is a server side application, made for creating and reading posts.
